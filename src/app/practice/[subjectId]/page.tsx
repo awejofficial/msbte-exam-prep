@@ -14,10 +14,11 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ArrowLeft, ArrowRight, CheckSquare, Bookmark, MenuSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // CardHeader, CardTitle added
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils'; // Added import for cn
+// ScrollArea is now used by QuestionNavigation internally for its content.
+// It's still used here for the desktop sidebar's overall scrollability if needed, but not directly wrapping QuestionNavigation's grid.
+import { cn } from '@/lib/utils';
 
 const DEFAULT_EXAM_DURATION_MINUTES_PER_QUESTION = 1.5; 
 
@@ -61,13 +62,12 @@ export default function PracticeExamPage() {
     newAnswers[currentQuestionIndex] = selectedOption;
     setUserAnswers(newAnswers);
 
-    // Reset correctness status if user changes answer after submission
     if (isCorrectList[currentQuestionIndex] !== null) {
       const newIsCorrect = [...isCorrectList];
       newIsCorrect[currentQuestionIndex] = null;
       setIsCorrectList(newIsCorrect);
     }
-    setIsQuestionSubmitted(false); // Allow re-submission or auto-submission on next
+    setIsQuestionSubmitted(false); 
   };
 
   const handleSubmitAnswer = () => {
@@ -85,39 +85,32 @@ export default function PracticeExamPage() {
     setIsCorrectList(newIsCorrect);
     setIsQuestionSubmitted(true); 
 
-    // If an answer is submitted, it's no longer just "marked for review" in terms of user action pending
-    // though the mark itself might persist until explicitly unmarked.
-    // For this logic, if it was marked and now submitted, we can unmark it.
     if (markedForReview[currentQuestionIndex]) {
       const newMarked = [...markedForReview];
-      newMarked[currentQuestionIndex] = false; // Optionally unmark on submit
+      newMarked[currentQuestionIndex] = false; 
       setMarkedForReview(newMarked);
     }
   };
 
   const navigateToQuestion = (index: number) => {
     setCurrentQuestionIndex(index);
-    // If navigating to a question that was already submitted and graded, keep its submitted state
     setIsQuestionSubmitted(isCorrectList[index] !== null);
     setIsSheetOpen(false); 
   };
 
   const handleNextQuestion = () => {
-    // If an answer is selected but not yet "submitted" via the button, submit it now
     if (userAnswers[currentQuestionIndex] !== null && !isQuestionSubmitted && isCorrectList[currentQuestionIndex] === null) {
       handleSubmitAnswer(); 
-      // Add a small delay for the user to see feedback if desired, then navigate
       setTimeout(() => {
         if (currentQuestionIndex < questions.length - 1) {
           navigateToQuestion(currentQuestionIndex + 1);
         } else {
-          finishExam(); // If it's the last question, finish exam
+          finishExam(); 
         }
-      }, 300); // Short delay
+      }, 300); 
       return;
     }
 
-    // If already submitted or no answer selected (skipped)
     if (currentQuestionIndex < questions.length - 1) {
       navigateToQuestion(currentQuestionIndex + 1);
     } else {
@@ -148,7 +141,6 @@ export default function PracticeExamPage() {
     const finalCorrectList = [...isCorrectList];
 
     userAnswers.forEach((answer, index) => {
-      // If an answer exists but its correctness hasn't been determined yet, determine it now.
       if (answer !== null && finalCorrectList[index] === null) {
          finalCorrectList[index] = answer === questions[index].correctAnswer;
       }
@@ -157,7 +149,7 @@ export default function PracticeExamPage() {
       }
     });
     
-    setIsCorrectList(finalCorrectList); // Ensure the list is fully updated
+    setIsCorrectList(finalCorrectList);
 
     const examResult = {
       subjectId: subject?.id,
@@ -168,7 +160,7 @@ export default function PracticeExamPage() {
       totalQuestions: questions.length,
       isAIPractice: false,
       isCorrectList: finalCorrectList,
-      markedForReview: markedForReview, // Pass the final marked status
+      markedForReview: markedForReview, 
     };
 
     sessionStorage.setItem('examResult', JSON.stringify(examResult));
@@ -209,17 +201,16 @@ export default function PracticeExamPage() {
                <SheetHeader className="p-4 border-b flex-shrink-0">
                 <SheetTitle>Questions</SheetTitle>
               </SheetHeader>
-              <ScrollArea className="flex-1"> {/* ScrollArea for mobile sheet navigation */}
-                <QuestionNavigation
-                  totalQuestions={questions.length}
-                  currentQuestionIndex={currentQuestionIndex}
-                  userAnswers={userAnswers}
-                  isCorrectList={isCorrectList}
-                  markedForReview={markedForReview}
-                  onQuestionSelect={navigateToQuestion}
-                  className="p-4" // Add padding around the grid itself
-                />
-              </ScrollArea>
+              <QuestionNavigation
+                className="flex-1" // QuestionNavigation's root div takes remaining space
+                contentClassName="p-4" // Padding for the grid inside QuestionNavigation's ScrollArea
+                totalQuestions={questions.length}
+                currentQuestionIndex={currentQuestionIndex}
+                userAnswers={userAnswers}
+                isCorrectList={isCorrectList}
+                markedForReview={markedForReview}
+                onQuestionSelect={navigateToQuestion}
+              />
             </SheetContent>
           </Sheet>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight flex-grow text-center px-2">{subject.name} Practice</h1>
@@ -235,24 +226,23 @@ export default function PracticeExamPage() {
       <div className="flex flex-col md:flex-row gap-4 lg:gap-6">
         <div className="hidden md:block md:w-56 lg:w-64 flex-shrink-0">
           <Card className="sticky top-4">
-            <CardContent className="p-0 flex flex-col max-h-[calc(100vh-3rem)]">
+            <CardContent className="p-0 flex flex-col max-h-[calc(100vh-3rem)]"> {/* max-h ensures card doesn't get too tall */}
                <div className="flex-shrink-0">
                  <ExamTimer durationInMinutes={totalExamDuration} onTimeUp={finishExam} />
                  <div className="p-2 border-b">
                    <h3 className="text-lg font-semibold px-2">Questions</h3>
                  </div>
                </div>
-              <ScrollArea className="flex-grow"> {/* ScrollArea for desktop navigation */}
-                <QuestionNavigation
-                  totalQuestions={questions.length}
-                  currentQuestionIndex={currentQuestionIndex}
-                  userAnswers={userAnswers}
-                  isCorrectList={isCorrectList}
-                  markedForReview={markedForReview}
-                  onQuestionSelect={navigateToQuestion}
-                  className="p-3"
-                />
-              </ScrollArea>
+              <QuestionNavigation
+                className="flex-grow" // QuestionNavigation's root div takes remaining space in CardContent
+                contentClassName="p-3" // Padding for the grid inside QuestionNavigation's ScrollArea
+                totalQuestions={questions.length}
+                currentQuestionIndex={currentQuestionIndex}
+                userAnswers={userAnswers}
+                isCorrectList={isCorrectList}
+                markedForReview={markedForReview}
+                onQuestionSelect={navigateToQuestion}
+              />
             </CardContent>
           </Card>
         </div>
@@ -300,14 +290,12 @@ export default function PracticeExamPage() {
                 </Button>
               )}
               
-              {/* Show skip only if no answer selected and not submitted */}
               {currentQuestionIndex < questions.length - 1 && userAnswers[currentQuestionIndex] === null && !isQuestionSubmitted && isCorrectList[currentQuestionIndex] === null &&(
                   <Button onClick={handleNextQuestion} variant="outline" disabled={isSubmitting} className="hover:bg-muted/50">
                       Skip <ArrowRight size={18} className="ml-1 sm:ml-2" />
                   </Button>
               )}
 
-              {/* Finish button logic */}
               {currentQuestionIndex === questions.length - 1 && (isQuestionSubmitted || userAnswers[currentQuestionIndex] !== null || isCorrectList[currentQuestionIndex] !== null) &&(
                 <Button onClick={finishExam} disabled={isSubmitting} className="bg-accent hover:bg-accent/90 text-accent-foreground">
                   {isSubmitting ? 'Submitting...' : 'Finish Exam'} <CheckSquare size={18} className="ml-1 sm:ml-2" />
@@ -320,4 +308,3 @@ export default function PracticeExamPage() {
     </div>
   );
 }
-

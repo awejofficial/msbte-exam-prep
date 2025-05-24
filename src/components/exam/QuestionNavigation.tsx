@@ -1,12 +1,14 @@
 
 'use client';
 
-import type { ComponentProps } from 'react';
-import { Button, type ButtonProps } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import type { ButtonProps } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
 import { cn } from '@/lib/utils';
 
-interface QuestionNavigationProps extends Omit<ComponentProps<'div'>, 'className'> {
+interface QuestionNavigationProps {
+  className?: string; // For the root div of this component (for layout by parent)
+  contentClassName?: string; // For the content div holding the grid (for padding etc.)
   totalQuestions: number;
   currentQuestionIndex: number;
   userAnswers: (string | null)[];
@@ -16,56 +18,66 @@ interface QuestionNavigationProps extends Omit<ComponentProps<'div'>, 'className
 }
 
 export default function QuestionNavigation({
+  className,
+  contentClassName,
   totalQuestions,
   currentQuestionIndex,
   userAnswers,
   isCorrectList,
   markedForReview,
   onQuestionSelect,
-  ...props
 }: QuestionNavigationProps) {
   
   const getButtonStyles = (index: number): { variant: ButtonProps['variant'], className?: string } => {
     let variant: ButtonProps['variant'] = 'outline';
     let customClassName = "w-full justify-center text-xs sm:text-sm px-2 py-1.5 h-auto leading-tight aspect-square flex items-center justify-center";
 
-    if (index === currentQuestionIndex) {
-      variant = 'default';
-    }
+    const isCurrent = index === currentQuestionIndex;
+    const isMarked = markedForReview[index];
+    const isAnsweredCorrectly = isCorrectList[index] === true;
+    const isAnsweredIncorrectly = isCorrectList[index] === false;
+    const isAnswered = userAnswers[index] !== null;
+    const isGraded = isCorrectList[index] !== null;
 
-    if (markedForReview[index]) {
-      return { variant: 'default', className: cn(customClassName, `bg-blue-500 hover:bg-blue-600 text-white border-blue-600 ${index === currentQuestionIndex ? 'ring-2 ring-offset-1 ring-blue-300' : ''}`) };
-    }
-    if (isCorrectList[index] === true) {
-      return { variant: 'default', className: cn(customClassName, `bg-green-500 hover:bg-green-600 text-white border-green-600 ${index === currentQuestionIndex ? 'ring-2 ring-offset-1 ring-green-300' : ''}`) };
-    }
-    if (isCorrectList[index] === false) {
-      return { variant: 'default', className: cn(customClassName, `bg-red-500 hover:bg-red-600 text-white border-red-600 ${index === currentQuestionIndex ? 'ring-2 ring-offset-1 ring-red-300' : ''}`) };
-    }
-    if (userAnswers[index] !== null) {
-      variant = index === currentQuestionIndex ? 'default' : 'secondary';
-      customClassName = cn(customClassName, `${index === currentQuestionIndex ? 'bg-primary hover:bg-primary/90' : 'bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200'} ${index === currentQuestionIndex ? 'ring-2 ring-offset-1 ring-primary-foreground' : ''}`);
+    if (isMarked) {
+      variant = 'default'; // Or a specific variant for marked
+      customClassName = cn(customClassName, `bg-blue-500 hover:bg-blue-600 text-white border-blue-600`);
+    } else if (isAnsweredCorrectly) {
+      variant = 'default';
+      customClassName = cn(customClassName, `bg-green-500 hover:bg-green-600 text-white border-green-600`);
+    } else if (isAnsweredIncorrectly) {
+      variant = 'default';
+      customClassName = cn(customClassName, `bg-red-500 hover:bg-red-600 text-white border-red-600`);
+    } else if (isAnswered && !isGraded) { // Answered but not yet graded (e.g. submitted but not moved next)
+      variant = 'secondary'; // Yellowish or similar
+      customClassName = cn(customClassName, `bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200`);
+    } else {
+      variant = 'outline';
     }
     
-    if (index === currentQuestionIndex && variant === 'default' && userAnswers[index] === null && isCorrectList[index] === null && !markedForReview[index]) {
-        customClassName = cn(customClassName, `bg-primary hover:bg-primary/90 ring-2 ring-offset-1 ring-primary-foreground`);
-    } else if (index === currentQuestionIndex && variant === 'outline') { 
-        variant = 'default';
-        customClassName = cn(customClassName, `bg-primary hover:bg-primary/90 ring-2 ring-offset-1 ring-primary-foreground`);
+    // Override for current question to make it stand out
+    if (isCurrent) {
+      if (isMarked) {
+        customClassName = cn(customClassName, `ring-2 ring-offset-2 ring-blue-300`);
+      } else if (isAnsweredCorrectly) {
+        customClassName = cn(customClassName, `ring-2 ring-offset-2 ring-green-300`);
+      } else if (isAnsweredIncorrectly) {
+        customClassName = cn(customClassName, `ring-2 ring-offset-2 ring-red-300`);
+      } else if (isAnswered && !isGraded) {
+        customClassName = cn(customClassName, `ring-2 ring-offset-2 ring-yellow-400`);
+      } else { // Unanswered current question
+        variant = 'default'; // Primary color for current, unanswered
+        customClassName = cn(customClassName, `bg-primary hover:bg-primary/90 text-primary-foreground ring-2 ring-offset-2 ring-primary-foreground/70`);
+      }
     }
 
     return { variant, className: customClassName };
   };
 
   return (
-    <div {...props}> {/* This div receives className from parent, if any */}
-      <ScrollArea
-        className={cn(
-          // Removed h-full, relying on max-h to constrain height and trigger scroll
-          "max-h-[calc(100vh-10rem)] md:max-h-[calc(100vh-15rem)]" // Adjusted max-h values slightly
-        )}
-      >
-        <div className="grid grid-cols-5 sm:grid-cols-6 gap-1.5 p-3">
+    <div className={cn(className)}> {/* Root div, gets layout classes from parent */}
+      <ScrollArea className="h-full w-full"> {/* ScrollArea fills the root div */}
+        <div className={cn("grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-6 gap-1.5", contentClassName)}>
           {Array.from({ length: totalQuestions }).map((_, index) => {
             const { variant, className: buttonClassName } = getButtonStyles(index);
             return (
