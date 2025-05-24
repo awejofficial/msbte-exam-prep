@@ -3,12 +3,12 @@
 
 import type { ButtonProps } from '@/components/ui/button';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
+import { ScrollArea } from '@/components/ui/scroll-area'; 
 import { cn } from '@/lib/utils';
 
 interface QuestionNavigationProps {
-  className?: string; // For the root div of this component (for layout by parent)
-  contentClassName?: string; // For the content div holding the grid (for padding etc.)
+  className?: string; 
+  contentClassName?: string; 
   totalQuestions: number;
   currentQuestionIndex: number;
   userAnswers: (string | null)[];
@@ -40,7 +40,7 @@ export default function QuestionNavigation({
     const isGraded = isCorrectList[index] !== null;
 
     if (isMarked) {
-      variant = 'default'; // Or a specific variant for marked
+      variant = 'default'; 
       customClassName = cn(customClassName, `bg-blue-500 hover:bg-blue-600 text-white border-blue-600`);
     } else if (isAnsweredCorrectly) {
       variant = 'default';
@@ -48,14 +48,13 @@ export default function QuestionNavigation({
     } else if (isAnsweredIncorrectly) {
       variant = 'default';
       customClassName = cn(customClassName, `bg-red-500 hover:bg-red-600 text-white border-red-600`);
-    } else if (isAnswered && !isGraded) { // Answered but not yet graded (e.g. submitted but not moved next)
-      variant = 'secondary'; // Yellowish or similar
+    } else if (isAnswered && !isGraded) { 
+      variant = 'secondary'; 
       customClassName = cn(customClassName, `bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200`);
     } else {
       variant = 'outline';
     }
     
-    // Override for current question to make it stand out
     if (isCurrent) {
       if (isMarked) {
         customClassName = cn(customClassName, `ring-2 ring-offset-2 ring-blue-300`);
@@ -65,8 +64,8 @@ export default function QuestionNavigation({
         customClassName = cn(customClassName, `ring-2 ring-offset-2 ring-red-300`);
       } else if (isAnswered && !isGraded) {
         customClassName = cn(customClassName, `ring-2 ring-offset-2 ring-yellow-400`);
-      } else { // Unanswered current question
-        variant = 'default'; // Primary color for current, unanswered
+      } else { 
+        variant = 'default'; 
         customClassName = cn(customClassName, `bg-primary hover:bg-primary/90 text-primary-foreground ring-2 ring-offset-2 ring-primary-foreground/70`);
       }
     }
@@ -75,8 +74,8 @@ export default function QuestionNavigation({
   };
 
   return (
-    <div className={cn(className)}> {/* Root div, gets layout classes from parent */}
-      <ScrollArea className="h-full w-full"> {/* ScrollArea fills the root div */}
+    <div className={cn("flex flex-col", className)}> {/* Make the root a flex column */}
+      <ScrollArea className="flex-1 w-full min-h-0"> {/* ScrollArea will take available space and can shrink. min-h-0 is key. */}
         <div className={cn("grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-6 gap-1.5", contentClassName)}>
           {Array.from({ length: totalQuestions }).map((_, index) => {
             const { variant, className: buttonClassName } = getButtonStyles(index);

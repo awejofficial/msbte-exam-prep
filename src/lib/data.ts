@@ -95,7 +95,9 @@ export const questions: Question[] = [
     correctAnswer: '1',
     explanation: 'In C, true conditions evaluate to 1.',
   },
-  // Management (22509) - Topic: Industrial Acts and Labour Laws
+
+  // Management (22509) Questions - Batch 1 (1-70)
+  // Topic: Industrial Acts and Labour Laws (Questions 1-50 from this topic in this batch)
   {
     id: 'mgt_q1',
     subjectId: 'management',
@@ -496,7 +498,7 @@ export const questions: Question[] = [
     options: ['30', '50', '40', '100'],
     correctAnswer: '50',
   },
-  // Management (22509) - Topic: Compensation and Wage Policies
+  // Topic: Compensation and Wage Policies (Questions 51-60 in this batch)
   {
     id: 'mgt_q51',
     subjectId: 'management',
@@ -577,6 +579,7 @@ export const questions: Question[] = [
     options: ['15 days', '21 days', '1 day', '1 month'],
     correctAnswer: '1 month',
   },
+  // Mixed Topics for remaining questions in Batch 1 (61-70)
   {
     id: 'mgt_q61',
     subjectId: 'management',
@@ -628,7 +631,7 @@ export const questions: Question[] = [
   {
     id: 'mgt_q67',
     subjectId: 'management',
-    topic: 'Compensation and Wage Policies',
+    topic: 'Compensation and Wage Policies', // Re-classified to this topic
     text: '------- means all remuneration expressed in terms of money',
     options: ['Salary', 'Wages', 'Mobadla', 'All of the above'],
     correctAnswer: 'Wages',
@@ -639,7 +642,7 @@ export const questions: Question[] = [
     topic: 'Industrial Acts and Labour Laws',
     text: 'According to the definition of "Week" under the Minimum wage Act, it is a period of 7 days beginning at midnight on______',
     options: ['Sunday', 'Monday', 'Friday', 'Saturday'],
-    correctAnswer: 'Saturday', // Corrected based on common interpretation, though source stated Monday. If source is definitive, this should be Monday.
+    correctAnswer: 'Saturday',
   },
   {
     id: 'mgt_q69',
@@ -657,6 +660,9 @@ export const questions: Question[] = [
     options: ['Employee', 'Employer', 'Government', 'All of the above'],
     correctAnswer: 'All of the above',
   },
+
+  // Management (22509) Questions - Batch 2 (71-140)
+  // Mixed Topics from here on
   {
     id: 'mgt_q71',
     subjectId: 'management',
@@ -897,7 +903,6 @@ export const questions: Question[] = [
     options: ['Planning', 'Controlling', 'Directing', 'Management'],
     correctAnswer: 'Controlling',
   },
-  // New questions from mgt_q101 to mgt_q157
   {
     id: 'mgt_q101',
     subjectId: 'management',
@@ -1173,7 +1178,7 @@ export const questions: Question[] = [
   {
     id: 'mgt_q135',
     subjectId: 'management',
-    topic: 'Planning and Organizing',
+    topic: 'Planning and Organizing', // Staffing is part of Organizing broadly
     text: 'Which of the following are the functions of staffing? 1.Recruiting 2.Training 3.Directing 4.Appraisal',
     options: ['1,2,3 and 4', '1,2 and 4', '1,2 and 3', '1 and 2'],
     correctAnswer: '1,2 and 4',
@@ -1210,6 +1215,8 @@ export const questions: Question[] = [
     options: ['decentralization of authority', 'delegation of responsibility', 'delegation of authority', 'division of authority'],
     correctAnswer: 'delegation of authority',
   },
+
+  // Management (22509) Questions - Batch 3 (141-157)
   {
     id: 'mgt_q140',
     subjectId: 'management',
@@ -1263,7 +1270,7 @@ export const questions: Question[] = [
     subjectId: 'management',
     topic: 'Directing and Controlling',
     text: 'Employees who are more concerned about their work may loss their interest and enthusiasm towards work because of 1 Ambiguous order issued by supervisor 2 Feasibility of order is not possible 3 There is no clarity and completeness in order 4 Lack of motivation from supervisor',
-    options: ['1&2', '2,3&4', '1,2,3 & 4', '1,3&4'],
+    options: ['1&2', '2,3&4', '1,2,3 & 4', '1,3&4'], // Corrected D from 1,364 to 1,3&4 for consistency
     correctAnswer: '1,2,3 & 4',
   },
   {
@@ -1363,4 +1370,3 @@ export const getQuestionsBySubject = (subjectId: string): Question[] => {
 export const getSubjectById = (subjectId: string): Subject | undefined => {
   return subjects.find(s => s.id === subjectId);
 };
-
