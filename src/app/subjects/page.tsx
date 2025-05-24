@@ -34,6 +34,9 @@ interface SubjectListItemProps {
 }
 
 function SubjectListItem({ subject }: SubjectListItemProps) {
+  // Generate a simple hint for AI based on subject name
+  const aiHint = subject.name.toLowerCase().split(' ').slice(0, 2).join(' ') + ' textbook';
+  
   return (
     <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
       {subject.image && (
@@ -41,9 +44,10 @@ function SubjectListItem({ subject }: SubjectListItemProps) {
           <Image 
             src={subject.image} 
             alt={subject.name} 
-            layout="fill" 
-            objectFit="cover" 
-            data-ai-hint={`${subject.name.toLowerCase().replace(/\s+/g, '-')} subject cover`}
+            fill // Changed from layout="fill" to fill for Next 13+ Image component
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Added sizes attribute
+            style={{ objectFit: 'cover' }} // Changed from objectFit="cover" to style={{ objectFit: 'cover' }}
+            data-ai-hint={aiHint}
           />
         </div>
       )}

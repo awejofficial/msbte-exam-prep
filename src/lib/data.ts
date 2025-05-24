@@ -6,7 +6,7 @@ export const subjects: Subject[] = [
     name: 'Applied Mathematics',
     description: 'Fundamental concepts of mathematics applied in engineering.',
     topics: ['Algebra', 'Trigonometry', 'Calculus', 'Differential Equations', 'Probability'],
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://placehold.co/600x400.png', // data-ai-hint will be added in subjects/page.tsx if used there
   },
   {
     id: 'basic-electronics',
@@ -20,6 +20,13 @@ export const subjects: Subject[] = [
     name: 'Programming in C',
     description: 'Learn the fundamentals of programming using the C language.',
     topics: ['Variables & Data Types', 'Control Structures', 'Functions', 'Arrays & Pointers', 'File Handling'],
+    image: 'https://placehold.co/600x400.png',
+  },
+  {
+    id: 'management',
+    name: 'Management (22509)',
+    description: 'Principles and practices of management for technical professionals and entrepreneurs.',
+    topics: ['Introduction to Management Concepts', 'Planning and Organizing', 'Directing and Controlling', 'Safety Management', 'Entrepreneurship'],
     image: 'https://placehold.co/600x400.png',
   },
 ];
@@ -86,6 +93,43 @@ export const questions: Question[] = [
     options: ['10', '5', '1', '0'],
     correctAnswer: '1',
     explanation: 'In C, true conditions evaluate to 1.',
+  },
+  // Management (22509)
+  {
+    id: 'mgt_q1',
+    subjectId: 'management',
+    topic: 'Introduction to Management Concepts',
+    text: 'Which of the following is NOT a primary function of management?',
+    options: ['Planning', 'Organizing', 'Marketing', 'Controlling'],
+    correctAnswer: 'Marketing',
+    explanation: 'The primary functions of management are typically Planning, Organizing, Leading/Directing, and Controlling. Marketing is a business function but not a core management function in this context.',
+  },
+  {
+    id: 'mgt_q2',
+    subjectId: 'management',
+    topic: 'Planning and Organizing',
+    text: 'SWOT analysis stands for:',
+    options: ['Strengths, Weaknesses, Opportunities, Threats', 'Strategy, Work, Output, Time', 'Sales, Workforce, Operations, Technology', 'Systems, Workflow, Objectives, Targets'],
+    correctAnswer: 'Strengths, Weaknesses, Opportunities, Threats',
+    explanation: 'SWOT analysis is a strategic planning technique used to help a person or organization identify strengths, weaknesses, opportunities, and threats related to business competition or project planning.',
+  },
+  {
+    id: 'mgt_q3',
+    subjectId: 'management',
+    topic: 'Directing and Controlling',
+    text: 'Which management principle suggests that each subordinate should report to only one superior?',
+    options: ['Division of Work', 'Unity of Command', 'Scalar Chain', 'Esprit de Corps'],
+    correctAnswer: 'Unity of Command',
+    explanation: 'Unity of command means that an employee should have only one direct supervisor and should receive orders from that person only.',
+  },
+  {
+    id: 'mgt_q4',
+    subjectId: 'management',
+    topic: 'Safety Management',
+    text: 'What is the primary purpose of a safety audit?',
+    options: ['To assign blame for accidents', 'To identify potential hazards and improve safety measures', 'To fulfill legal requirements only', 'To reduce insurance premiums'],
+    correctAnswer: 'To identify potential hazards and improve safety measures',
+    explanation: 'While safety audits can help with legal compliance and potentially insurance, their main goal is proactive hazard identification and safety improvement.',
   },
 ];
 
