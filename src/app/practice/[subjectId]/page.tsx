@@ -16,7 +16,8 @@ import { ArrowLeft, ArrowRight, CheckSquare, Bookmark, MenuSquare } from 'lucide
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { ScrollArea } from '@/components/ui/scroll-area'; // Added ScrollArea import
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils'; // Added import for cn
 
 const DEFAULT_EXAM_DURATION_MINUTES_PER_QUESTION = 1.5; 
 
@@ -204,11 +205,11 @@ export default function PracticeExamPage() {
                 <span className="sr-only">Open Question Navigation</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-3/4 p-0 flex flex-col"> {/* Ensure p-0 and flex direction */}
-               <SheetHeader className="p-4 border-b flex-shrink-0"> {/* Header shouldn't grow/shrink */}
+            <SheetContent side="left" className="w-3/4 p-0 flex flex-col">
+               <SheetHeader className="p-4 border-b flex-shrink-0">
                 <SheetTitle>Questions</SheetTitle>
               </SheetHeader>
-              <ScrollArea className="flex-1"> {/* ScrollArea takes remaining space */}
+              <ScrollArea className="flex-1"> {/* ScrollArea for mobile sheet navigation */}
                 <QuestionNavigation
                   totalQuestions={questions.length}
                   currentQuestionIndex={currentQuestionIndex}
@@ -234,8 +235,8 @@ export default function PracticeExamPage() {
       <div className="flex flex-col md:flex-row gap-4 lg:gap-6">
         <div className="hidden md:block md:w-56 lg:w-64 flex-shrink-0">
           <Card className="sticky top-4">
-            <CardContent className="p-0 flex flex-col max-h-[calc(100vh-3rem)]"> {/* max-h for scroll containment */}
-               <div className="flex-shrink-0"> {/* Timer should not scroll */}
+            <CardContent className="p-0 flex flex-col max-h-[calc(100vh-3rem)]">
+               <div className="flex-shrink-0">
                  <ExamTimer durationInMinutes={totalExamDuration} onTimeUp={finishExam} />
                  <div className="p-2 border-b">
                    <h3 className="text-lg font-semibold px-2">Questions</h3>
