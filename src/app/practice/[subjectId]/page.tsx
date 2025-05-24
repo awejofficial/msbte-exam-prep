@@ -14,10 +14,11 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ArrowLeft, ArrowRight, CheckSquare, Bookmark, MenuSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent } from '@/components/ui/card'; // Added CardContent here
+import { Card, CardContent } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ScrollArea } from '@/components/ui/scroll-area'; // Added ScrollArea import
 
-const DEFAULT_EXAM_DURATION_MINUTES = 30; // Default 30 minutes
+const DEFAULT_EXAM_DURATION_MINUTES_PER_QUESTION = 1.5; 
 
 export default function PracticeExamPage() {
   const params = useParams();
@@ -30,8 +31,8 @@ export default function PracticeExamPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<(string | null)[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false); // For final exam submission
-  const [isQuestionSubmitted, setIsQuestionSubmitted] = useState(false); // For immediate feedback on current question
+  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [isQuestionSubmitted, setIsQuestionSubmitted] = useState(false); 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const [markedForReview, setMarkedForReview] = useState<boolean[]>([]);
@@ -44,9 +45,11 @@ export default function PracticeExamPage() {
         setSubject(fetchedSubject);
         const fetchedQuestions = getQuestionsBySubject(subjectId);
         setQuestions(fetchedQuestions);
-        setUserAnswers(new Array(fetchedQuestions.length).fill(null));
-        setMarkedForReview(new Array(fetchedQuestions.length).fill(false));
-        setIsCorrectList(new Array(fetchedQuestions.length).fill(null));
+        if (fetchedQuestions.length > 0) {
+          setUserAnswers(new Array(fetchedQuestions.length).fill(null));
+          setMarkedForReview(new Array(fetchedQuestions.length).fill(false));
+          setIsCorrectList(new Array(fetchedQuestions.length).fill(null));
+        }
       }
       setIsLoading(false);
     }
@@ -57,12 +60,13 @@ export default function PracticeExamPage() {
     newAnswers[currentQuestionIndex] = selectedOption;
     setUserAnswers(newAnswers);
 
+    // Reset correctness status if user changes answer after submission
     if (isCorrectList[currentQuestionIndex] !== null) {
       const newIsCorrect = [...isCorrectList];
       newIsCorrect[currentQuestionIndex] = null;
       setIsCorrectList(newIsCorrect);
     }
-    setIsQuestionSubmitted(false);
+    setIsQuestionSubmitted(false); // Allow re-submission or auto-submission on next
   };
 
   const handleSubmitAnswer = () => {
@@ -80,32 +84,39 @@ export default function PracticeExamPage() {
     setIsCorrectList(newIsCorrect);
     setIsQuestionSubmitted(true); 
 
+    // If an answer is submitted, it's no longer just "marked for review" in terms of user action pending
+    // though the mark itself might persist until explicitly unmarked.
+    // For this logic, if it was marked and now submitted, we can unmark it.
     if (markedForReview[currentQuestionIndex]) {
       const newMarked = [...markedForReview];
-      newMarked[currentQuestionIndex] = false;
+      newMarked[currentQuestionIndex] = false; // Optionally unmark on submit
       setMarkedForReview(newMarked);
     }
   };
 
   const navigateToQuestion = (index: number) => {
     setCurrentQuestionIndex(index);
+    // If navigating to a question that was already submitted and graded, keep its submitted state
     setIsQuestionSubmitted(isCorrectList[index] !== null);
-    setIsSheetOpen(false); // Close sheet after navigation
+    setIsSheetOpen(false); 
   };
 
   const handleNextQuestion = () => {
+    // If an answer is selected but not yet "submitted" via the button, submit it now
     if (userAnswers[currentQuestionIndex] !== null && !isQuestionSubmitted && isCorrectList[currentQuestionIndex] === null) {
       handleSubmitAnswer(); 
+      // Add a small delay for the user to see feedback if desired, then navigate
       setTimeout(() => {
         if (currentQuestionIndex < questions.length - 1) {
           navigateToQuestion(currentQuestionIndex + 1);
         } else {
-          finishExam();
+          finishExam(); // If it's the last question, finish exam
         }
-      }, 500); 
+      }, 300); // Short delay
       return;
     }
 
+    // If already submitted or no answer selected (skipped)
     if (currentQuestionIndex < questions.length - 1) {
       navigateToQuestion(currentQuestionIndex + 1);
     } else {
@@ -136,6 +147,7 @@ export default function PracticeExamPage() {
     const finalCorrectList = [...isCorrectList];
 
     userAnswers.forEach((answer, index) => {
+      // If an answer exists but its correctness hasn't been determined yet, determine it now.
       if (answer !== null && finalCorrectList[index] === null) {
          finalCorrectList[index] = answer === questions[index].correctAnswer;
       }
@@ -144,7 +156,7 @@ export default function PracticeExamPage() {
       }
     });
     
-    setIsCorrectList(finalCorrectList); 
+    setIsCorrectList(finalCorrectList); // Ensure the list is fully updated
 
     const examResult = {
       subjectId: subject?.id,
@@ -155,7 +167,7 @@ export default function PracticeExamPage() {
       totalQuestions: questions.length,
       isAIPractice: false,
       isCorrectList: finalCorrectList,
-      markedForReview: markedForReview,
+      markedForReview: markedForReview, // Pass the final marked status
     };
 
     sessionStorage.setItem('examResult', JSON.stringify(examResult));
@@ -163,26 +175,26 @@ export default function PracticeExamPage() {
   }, [userAnswers, questions, subject, router, subjectId, isCorrectList, markedForReview]);
 
 
-  if (isLoading) return <LoadingSpinner text="Loading exam..." />;
-  if (!subject || questions.length === 0) {
+  if (isLoading || !subject || questions.length === 0) {
+    if (isLoading) return <LoadingSpinner text="Loading exam..." />;
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 text-center">
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>Could not load exam questions for this subject. Please try again or select another subject.</AlertDescription>
+          <AlertDescription>Could not load exam questions for {subject?.name || 'this subject'}. Please try again or select another subject.</AlertDescription>
         </Alert>
+        <Button onClick={() => router.push('/subjects')} className="mt-4">Back to Subjects</Button>
       </div>
     );
   }
 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  const examDurationPerQuestion = 1.5; // minutes
-  const totalExamDuration = Math.ceil(questions.length * examDurationPerQuestion);
+  const totalExamDuration = Math.ceil(questions.length * DEFAULT_EXAM_DURATION_MINUTES_PER_QUESTION);
 
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 p-4">
+    <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 p-2 sm:p-4">
       <header className="text-center space-y-2">
         <div className="flex items-center justify-between">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -192,54 +204,60 @@ export default function PracticeExamPage() {
                 <span className="sr-only">Open Question Navigation</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-3/4 p-0">
-               <SheetHeader className="p-4 border-b">
+            <SheetContent side="left" className="w-3/4 p-0 flex flex-col"> {/* Ensure p-0 and flex direction */}
+               <SheetHeader className="p-4 border-b flex-shrink-0"> {/* Header shouldn't grow/shrink */}
                 <SheetTitle>Questions</SheetTitle>
               </SheetHeader>
-              <QuestionNavigation
-                totalQuestions={questions.length}
-                currentQuestionIndex={currentQuestionIndex}
-                userAnswers={userAnswers}
-                isCorrectList={isCorrectList}
-                markedForReview={markedForReview}
-                onQuestionSelect={navigateToQuestion}
-              />
+              <ScrollArea className="flex-1"> {/* ScrollArea takes remaining space */}
+                <QuestionNavigation
+                  totalQuestions={questions.length}
+                  currentQuestionIndex={currentQuestionIndex}
+                  userAnswers={userAnswers}
+                  isCorrectList={isCorrectList}
+                  markedForReview={markedForReview}
+                  onQuestionSelect={navigateToQuestion}
+                  className="p-4" // Add padding around the grid itself
+                />
+              </ScrollArea>
             </SheetContent>
           </Sheet>
-          <h1 className="text-2xl md:text-4xl font-bold tracking-tight flex-grow text-center">{subject.name} Practice</h1>
-           <div className="w-10 md:hidden"> {/* Placeholder for balance if needed */}</div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight flex-grow text-center px-2">{subject.name} Practice</h1>
+           <div className="w-10 md:hidden"> {/* Placeholder for balance */}</div>
         </div>
-        <p className="text-muted-foreground">Answer all questions to the best of your ability.</p>
+        <p className="text-sm text-muted-foreground">Answer all questions to the best of your ability.</p>
       </header>
       
-      <div className="md:hidden"> {/* Timer for mobile, outside of fixed elements that might overlap */}
+      <div className="md:hidden"> 
           <ExamTimer durationInMinutes={totalExamDuration} onTimeUp={finishExam} />
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6">
-         {/* Desktop Sidebar */}
-        <div className="hidden md:block w-64 lg:w-72 flex-shrink-0">
+      <div className="flex flex-col md:flex-row gap-4 lg:gap-6">
+        <div className="hidden md:block md:w-56 lg:w-64 flex-shrink-0">
           <Card className="sticky top-4">
-            <CardContent className="p-0">
-               <ExamTimer durationInMinutes={totalExamDuration} onTimeUp={finishExam} />
-               <div className="p-2 border-b">
-                 <h3 className="text-lg font-semibold px-2">Questions</h3>
+            <CardContent className="p-0 flex flex-col max-h-[calc(100vh-3rem)]"> {/* max-h for scroll containment */}
+               <div className="flex-shrink-0"> {/* Timer should not scroll */}
+                 <ExamTimer durationInMinutes={totalExamDuration} onTimeUp={finishExam} />
+                 <div className="p-2 border-b">
+                   <h3 className="text-lg font-semibold px-2">Questions</h3>
+                 </div>
                </div>
-              <QuestionNavigation
-                totalQuestions={questions.length}
-                currentQuestionIndex={currentQuestionIndex}
-                userAnswers={userAnswers}
-                isCorrectList={isCorrectList}
-                markedForReview={markedForReview}
-                onQuestionSelect={navigateToQuestion}
-              />
+              <ScrollArea className="flex-grow"> {/* ScrollArea for desktop navigation */}
+                <QuestionNavigation
+                  totalQuestions={questions.length}
+                  currentQuestionIndex={currentQuestionIndex}
+                  userAnswers={userAnswers}
+                  isCorrectList={isCorrectList}
+                  markedForReview={markedForReview}
+                  onQuestionSelect={navigateToQuestion}
+                  className="p-3"
+                />
+              </ScrollArea>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main exam content */}
-        <div className="flex-grow space-y-6 min-w-0">
-          <Progress value={progress} className="w-full h-3" />
+        <div className="flex-grow space-y-4 md:space-y-6 min-w-0">
+          <Progress value={progress} className="w-full h-2.5" />
 
           <QuestionDisplay
             question={currentQuestion}
@@ -247,41 +265,52 @@ export default function PracticeExamPage() {
             totalQuestions={questions.length}
             onAnswerSelect={handleAnswerSelect}
             userAnswer={userAnswers[currentQuestionIndex]}
-            isSubmitted={isQuestionSubmitted}
+            isSubmitted={isQuestionSubmitted || isCorrectList[currentQuestionIndex] !== null}
+            correctAnswer={currentQuestion.correctAnswer}
           />
 
-          <Card className="p-4 shadow-md">
-            <div className="flex flex-col sm:flex-row flex-wrap justify-between items-center gap-3">
+          <Card className="p-3 sm:p-4 shadow-md">
+            <div className="flex flex-wrap justify-between items-center gap-2 sm:gap-3">
               <Button variant="outline" onClick={handlePreviousQuestion} disabled={currentQuestionIndex === 0 || isSubmitting}>
-                <ArrowLeft size={18} className="mr-2" /> Previous
+                <ArrowLeft size={18} className="mr-1 sm:mr-2" /> Previous
               </Button>
               
-              <Button variant="outline" onClick={toggleMarkForReview} className={markedForReview[currentQuestionIndex] ? 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200 hover:text-blue-800' : 'hover:bg-muted/50'}>
-                <Bookmark size={18} className={`mr-2 ${markedForReview[currentQuestionIndex] ? 'fill-blue-500 text-blue-500' : ''}`} />
-                {markedForReview[currentQuestionIndex] ? 'Unmark' : 'Mark Review'}
+              <Button 
+                variant="outline" 
+                onClick={toggleMarkForReview} 
+                className={cn(
+                  'hover:bg-muted/50',
+                  markedForReview[currentQuestionIndex] && 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200 hover:text-blue-800'
+                )}
+              >
+                <Bookmark size={18} className={cn("mr-1 sm:mr-2", markedForReview[currentQuestionIndex] && 'fill-blue-500 text-blue-500')} />
+                {markedForReview[currentQuestionIndex] ? 'Unmark' : 'Mark'}
               </Button>
 
-              {!isQuestionSubmitted && userAnswers[currentQuestionIndex] !== null && (
-                <Button onClick={handleSubmitAnswer} disabled={isSubmitting || userAnswers[currentQuestionIndex] === null} className="bg-primary hover:bg-primary/90">
+              {userAnswers[currentQuestionIndex] !== null && !isQuestionSubmitted && isCorrectList[currentQuestionIndex] === null && (
+                <Button onClick={handleSubmitAnswer} disabled={isSubmitting} className="bg-primary hover:bg-primary/90">
                   Submit Answer
                 </Button>
               )}
 
-              {isQuestionSubmitted && currentQuestionIndex < questions.length - 1 && (
-                <Button onClick={handleNextQuestion} disabled={isSubmitting} className="bg-primary hover:bg-primary/90">
-                  Next Question <ArrowRight size={18} className="ml-2" />
+              {currentQuestionIndex < questions.length - 1 && (isQuestionSubmitted || userAnswers[currentQuestionIndex] !== null || isCorrectList[currentQuestionIndex] !== null) && (
+                 <Button onClick={handleNextQuestion} disabled={isSubmitting} className={cn((isQuestionSubmitted || isCorrectList[currentQuestionIndex] !==null ) ? 'bg-primary hover:bg-primary/90' : 'bg-secondary hover:bg-secondary/80 text-secondary-foreground')}>
+                  Next <ArrowRight size={18} className="ml-1 sm:ml-2" />
                 </Button>
               )}
               
-              {(isQuestionSubmitted || userAnswers[currentQuestionIndex] !== null || currentQuestionIndex === questions.length -1) && currentQuestionIndex === questions.length - 1 && (
-                <Button onClick={finishExam} disabled={isSubmitting} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                  {isSubmitting ? 'Submitting...' : 'Finish Exam'} <CheckSquare size={18} className="ml-2" />
-                </Button>
-              )}
-              {currentQuestionIndex < questions.length - 1 && userAnswers[currentQuestionIndex] === null && !isQuestionSubmitted && (
+              {/* Show skip only if no answer selected and not submitted */}
+              {currentQuestionIndex < questions.length - 1 && userAnswers[currentQuestionIndex] === null && !isQuestionSubmitted && isCorrectList[currentQuestionIndex] === null &&(
                   <Button onClick={handleNextQuestion} variant="outline" disabled={isSubmitting} className="hover:bg-muted/50">
-                      Skip Question <ArrowRight size={18} className="ml-2" />
+                      Skip <ArrowRight size={18} className="ml-1 sm:ml-2" />
                   </Button>
+              )}
+
+              {/* Finish button logic */}
+              {currentQuestionIndex === questions.length - 1 && (isQuestionSubmitted || userAnswers[currentQuestionIndex] !== null || isCorrectList[currentQuestionIndex] !== null) &&(
+                <Button onClick={finishExam} disabled={isSubmitting} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                  {isSubmitting ? 'Submitting...' : 'Finish Exam'} <CheckSquare size={18} className="ml-1 sm:ml-2" />
+                </Button>
               )}
             </div>
           </Card>
