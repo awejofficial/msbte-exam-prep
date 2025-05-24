@@ -14,7 +14,7 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ArrowLeft, ArrowRight, CheckSquare, Bookmark, MenuSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card'; // Added CardContent here
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 const DEFAULT_EXAM_DURATION_MINUTES = 30; // Default 30 minutes
