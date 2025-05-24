@@ -27,7 +27,7 @@ export const subjects: Subject[] = [
     id: 'management',
     name: 'Management (22509)',
     description: 'Principles and practices of management for technical professionals and entrepreneurs.',
-    topics: ['Introduction to Management Concepts', 'Planning and Organizing', 'Directing and Controlling', 'Safety Management', 'Entrepreneurship', 'Industrial Acts and Labour Laws'],
+    topics: ['Introduction to Management Concepts', 'Planning and Organizing', 'Directing and Controlling', 'Safety Management', 'Entrepreneurship', 'Industrial Acts and Labour Laws', 'Compensation and Wage Policies'],
     image: 'https://placehold.co/600x400.png',
   },
 ];
@@ -95,7 +95,7 @@ export const questions: Question[] = [
     correctAnswer: '1',
     explanation: 'In C, true conditions evaluate to 1.',
   },
-  // Management (22509) - Questions from user
+  // Management (22509) - Topic: Industrial Acts and Labour Laws
   {
     id: 'mgt_q1',
     subjectId: 'management',
@@ -176,7 +176,6 @@ export const questions: Question[] = [
     options: ['One year', 'Two year', 'Five Year', 'Three year'],
     correctAnswer: 'Five Year',
   },
-  // Batch 2 for Management
   {
     id: 'mgt_q11',
     subjectId: 'management',
@@ -257,7 +256,6 @@ export const questions: Question[] = [
     options: ['The Heavy Industries Department of Central Government', 'Human Resources Department', 'The Labour Department of the State Government', 'All of the Above'],
     correctAnswer: 'The Labour Department of the State Government',
   },
-  // Batch 3 for Management
   {
     id: 'mgt_q21',
     subjectId: 'management',
@@ -338,7 +336,6 @@ export const questions: Question[] = [
     options: ['Labor court', 'Industrial Tribunal', 'Conciliation Board', 'All of the Above'],
     correctAnswer: 'All of the Above',
   },
-  // Batch 4 for Management
   {
     id: 'mgt_q31',
     subjectId: 'management',
@@ -419,7 +416,6 @@ export const questions: Question[] = [
     options: ['2 weeks', '6 weeks', '1 week', '4 weeks'],
     correctAnswer: '6 weeks',
   },
-  // Batch 5 for Management
   {
     id: 'mgt_q41',
     subjectId: 'management',
@@ -500,6 +496,87 @@ export const questions: Question[] = [
     options: ['30', '50', '40', '100'],
     correctAnswer: '50',
   },
+  // Management (22509) - Topic: Compensation and Wage Policies
+  {
+    id: 'mgt_q51',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: 'Basic compensations given to employees as salaries or wages are called -------',
+    options: ['Basic pay', 'Wages', 'Salary', 'Variable pay'],
+    correctAnswer: 'Basic pay',
+  },
+  {
+    id: 'mgt_q52',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: '---------- is the total cash and non-cash payments that you give to an employee in exchange for the work they do for your business.',
+    options: ['Salary', 'Compensation', 'Payment', 'All of the above'],
+    correctAnswer: 'Compensation',
+  },
+  {
+    id: 'mgt_q53',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: '---------- is the initial pay, you give your employees',
+    options: ['Wages', 'Salary', 'Compensation', 'Basic Pay'],
+    correctAnswer: 'Basic Pay',
+  },
+  {
+    id: 'mgt_q54',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: 'Characteristic of a good compensation system is -------',
+    options: ['Higher the qualification of worker, higher is compensation', 'Higher the efficiency of worker, higher is compensation', 'Higher the rank of worker, higher is compensation', 'All of the above'],
+    correctAnswer: 'All of the above',
+  },
+  {
+    id: 'mgt_q55',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: 'Major factors influencing compensation of worker are -----',
+    options: ['Skill', 'Effort', 'Working condition', 'All of the above'],
+    correctAnswer: 'All of the above',
+  },
+  {
+    id: 'mgt_q56',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: 'In graduated time rates system, if basic salary is Rs.2000 and dearness allowance is 150% then total remuneration will be Rs. -----',
+    options: ['3000', '5000', '2000', '2150'],
+    correctAnswer: '5000',
+  },
+  {
+    id: 'mgt_q57',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: 'Most common and usual form of direct compensation paid in organizations is -----',
+    options: ['Base pay and benefits', 'Variable pay and benefit', 'Base and variable pay', 'All of the above'],
+    correctAnswer: 'Base and variable pay',
+  },
+  {
+    id: 'mgt_q58',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: 'An Act to provide for the payment by certain classes of employers to their Employees of compensation for injury by accident ----',
+    options: ['Industrial Acts', 'Industrial Dispute Act', 'Workman Compensation Act', 'Minimum Wages Act'],
+    correctAnswer: 'Workman Compensation Act',
+  },
+  {
+    id: 'mgt_q59',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: '------ means, where the disablement is of a temporary nature, such disablement as reduces the earning capacity of a [employee] in any employment in which he was engaged at the time of the accident resulting in the disablement',
+    options: ['Total disablement', 'Partial disablement', 'Major disablement', 'None of the above'],
+    correctAnswer: 'Partial disablement',
+  },
+  {
+    id: 'mgt_q60',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: '----- is the maximum wage period for the payment of wages',
+    options: ['15 days', '21 days', '1 day', '1 month'],
+    correctAnswer: '1 month',
+  },
 ];
 
 export const getQuestionsBySubject = (subjectId: string): Question[] => {
@@ -509,6 +586,3 @@ export const getQuestionsBySubject = (subjectId: string): Question[] => {
 export const getSubjectById = (subjectId: string): Subject | undefined => {
   return subjects.find(s => s.id === subjectId);
 };
-
-
-    
