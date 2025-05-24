@@ -94,7 +94,7 @@ export const questions: Question[] = [
     correctAnswer: '1',
     explanation: 'In C, true conditions evaluate to 1.',
   },
-  // Management (22509) - New Questions
+  // Management (22509) - Questions from user
   {
     id: 'mgt_q1',
     subjectId: 'management',
@@ -149,7 +149,7 @@ export const questions: Question[] = [
     topic: 'Industrial Acts and Labour Laws',
     text: 'Bhopal gas tragedy led to an amendment under ---- legislation',
     options: ['Indian Safety act', 'Indian boiler act', 'Indian wage act', 'None of the above'],
-    correctAnswer: 'None of the above', // Assuming this is the intended answer as provided. It likely led to Environment Protection Act, 1986.
+    correctAnswer: 'None of the above',
   },
   {
     id: 'mgt_q8',
@@ -165,7 +165,7 @@ export const questions: Question[] = [
     topic: 'Industrial Acts and Labour Laws',
     text: 'For contravention of provisions of factories act , the occupier shall liable for punishment up to .-------',
     options: ['Fine of Rs 10000', 'Fine of Rs 100000', 'Fine of Rs 200000', 'None of the above'],
-    correctAnswer: 'None of the above', // The penalties can be complex and include imprisonment and/or higher fines depending on the specific contravention and if it's a repeated offense. "None of the above" might be correct if specific options don't match the actual penalties.
+    correctAnswer: 'None of the above',
   },
   {
     id: 'mgt_q10',
@@ -174,6 +174,87 @@ export const questions: Question[] = [
     text: 'The license fee can be paid to get license for a factory maximum up to --------',
     options: ['One year', 'Two year', 'Five Year', 'Three year'],
     correctAnswer: 'Five Year',
+  },
+  // Batch 2 for Management
+  {
+    id: 'mgt_q11',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'The occupier of a factory is required to send written notice to the Chief Inspector of Factories at least ------- days before he begins to occupy the premises as factory.',
+    options: ['7', '15', '10', '30'],
+    correctAnswer: '15',
+  },
+  {
+    id: 'mgt_q12',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'As per the Factories Act, 1948 any engine, motor or other appliance which generates or otherwise provides power is termed as --------------',
+    options: ['Prime Mover', 'Machinery', 'Equipment', 'All of the Above'],
+    correctAnswer: 'Prime Mover',
+  },
+  {
+    id: 'mgt_q13',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'As per section 16 of the Factory Act, 1948 the minimum space to be allocated to each worker employed in the factory is ---------------',
+    options: ['12.2 cu.met', '13.2 cu.met', '4.2 cu.met', '15.2 cu.met'],
+    correctAnswer: '4.2 cu.met', // Note: This seems low. The Factories Act often specifies values like 9.9 or 14.2 cubic meters depending on when the factory was built. Assuming 4.2 is from the user's source.
+  },
+  {
+    id: 'mgt_q14',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'An adult worker is allowed to work for -------- hours in a week.',
+    options: ['35', '48', '40', '45'],
+    correctAnswer: '48',
+  },
+  {
+    id: 'mgt_q15',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '------- is not an essential element of a factory',
+    options: ['There must be a premises', 'There must be manufacturing process being carried on at the premises', 'There must be ten or more workers where the manufacturing process is being carried on with the aid of power', 'There must be an electronic data processing unit installed'],
+    correctAnswer: 'There must be an electronic data processing unit installed',
+  },
+  {
+    id: 'mgt_q16',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'Section 2 (m) of the Factory Act 1948 Says about --',
+    options: ['Factory', 'Manufacturing Process', 'Workers', 'All of the Above'],
+    correctAnswer: 'Manufacturing Process',
+  },
+  {
+    id: 'mgt_q17',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'Crèche is to be provided if______ or more lady employees are engaged',
+    options: ['15', '25', '30', '40'],
+    correctAnswer: '30',
+  },
+  {
+    id: 'mgt_q18',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'The maximum daily hours of work in a day with normal wage allowed in factories is -----------',
+    options: ['8', '9', '10', '11'],
+    correctAnswer: '9',
+  },
+  {
+    id: 'mgt_q19',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '--------- is the chairman of Site Appraisal Committees',
+    options: ['The Chief Inspector of the State', 'The Inspector of The District', 'Occupier', 'None of the above'],
+    correctAnswer: 'The Chief Inspector of the State',
+  },
+  {
+    id: 'mgt_q20',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '------- authority enforces the Factory Act 1948',
+    options: ['The Heavy Industries Department of Central Government', 'Human Resources Department', 'The Labour Department of the State Government', 'All of the Above'],
+    correctAnswer: 'The Labour Department of the State Government',
   },
 ];
 
@@ -184,3 +265,4 @@ export const getQuestionsBySubject = (subjectId: string): Question[] => {
 export const getSubjectById = (subjectId: string): Subject | undefined => {
   return subjects.find(s => s.id === subjectId);
 };
+
