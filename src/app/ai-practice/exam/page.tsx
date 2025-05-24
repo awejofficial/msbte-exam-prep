@@ -1,0 +1,177 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import type { Question } from '@/lib/types';
+import QuestionDisplay from '@/components/exam/QuestionDisplay';
+import ExamTimer from '@/components/exam/ExamTimer';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ArrowLeft, ArrowRight, CheckSquare } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+const DEFAULT_EXAM_DURATION_MINUTES_PER_QUESTION = 1.5; // 1.5 minutes per question
+
+interface AIExamData {
+  questions: { text: string, options: string[], correctAnswer: string, explanation?: string }[]; // AI questions might not have full Question structure
+  subjectName: string;
+}
+
+export default function AIPracticeExamPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const [examData, setExamData] = useState<AIExamData | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<(string | null)[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isQuestionSubmitted, setIsQuestionSubmitted] = useState(false);
+
+  useEffect(() => {
+    const storedExamData = sessionStorage.getItem('aiGeneratedExam');
+    if (storedExamData) {
+      try {
+        const parsedData = JSON.parse(storedExamData) as AIExamData;
+        if (parsedData.questions && parsedData.questions.length > 0) {
+          setExamData(parsedData);
+          setUserAnswers(new Array(parsedData.questions.length).fill(null));
+        } else {
+          router.replace('/ai-practice'); // No questions, redirect
+        }
+      } catch (e) {
+        console.error("Failed to parse AI exam data", e);
+        router.replace('/ai-practice'); // Error parsing, redirect
+      }
+    } else {
+      router.replace('/ai-practice'); // No data, redirect
+    }
+    setIsLoading(false);
+  }, [router]);
+
+  const handleAnswerSelect = (selectedOption: string) => {
+    if (isQuestionSubmitted) return;
+    const newAnswers = [...userAnswers];
+    newAnswers[currentQuestionIndex] = selectedOption;
+    setUserAnswers(newAnswers);
+  };
+
+  const handleSubmitAnswer = () => {
+    if (userAnswers[currentQuestionIndex] === null) {
+      toast({
+        title: "No Answer Selected",
+        description: "Please select an answer before proceeding.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsQuestionSubmitted(true);
+  };
+
+  const handleNextQuestion = () => {
+     if (!examData) return;
+    if (!isQuestionSubmitted && userAnswers[currentQuestionIndex] !== null) {
+      setIsQuestionSubmitted(true);
+      setTimeout(() => {
+        if (currentQuestionIndex < examData.questions.length - 1) {
+          setCurrentQuestionIndex(prev => prev + 1);
+          setIsQuestionSubmitted(false);
+        } else {
+          finishExam();
+        }
+      }, 500);
+      return;
+    }
+    
+    if (currentQuestionIndex < examData.questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setIsQuestionSubmitted(false);
+    } else {
+      finishExam();
+    }
+  };
+  
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+      setIsQuestionSubmitted(true); 
+    }
+  };
+
+  const finishExam = useCallback(() => {
+    if (!examData) return;
+    setIsSubmitting(true);
+    let score = 0;
+    userAnswers.forEach((answer, index) => {
+      if (examData.questions[index] && answer === examData.questions[index].correctAnswer) {
+        score++;
+      }
+    });
+
+    const examResult = {
+      subjectName: examData.subjectName,
+      questions: examData.questions, // AI questions are simpler
+      userAnswers,
+      score,
+      totalQuestions: examData.questions.length,
+      isAIPractice: true,
+    };
+
+    sessionStorage.setItem('examResult', JSON.stringify(examResult));
+    router.push(`/ai-practice/summary`);
+  }, [userAnswers, examData, router]);
+
+  if (isLoading || !examData) return <LoadingSpinner text="Loading AI exam..." />;
+  
+  const currentQuestion = examData.questions[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / examData.questions.length) * 100;
+  const examDuration = Math.ceil(examData.questions.length * DEFAULT_EXAM_DURATION_MINUTES_PER_QUESTION);
+
+  return (
+    <div className="space-y-6 md:space-y-8 max-w-3xl mx-auto">
+      <header className="text-center space-y-2">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">AI Personalized Practice: {examData.subjectName}</h1>
+        <p className="text-muted-foreground">This exam was generated by AI to help you focus.</p>
+      </header>
+
+      <ExamTimer durationInMinutes={examDuration} onTimeUp={finishExam} />
+      
+      <Progress value={progress} className="w-full h-3" />
+
+      <QuestionDisplay
+        question={currentQuestion}
+        questionNumber={currentQuestionIndex + 1}
+        totalQuestions={examData.questions.length}
+        onAnswerSelect={handleAnswerSelect}
+        userAnswer={userAnswers[currentQuestionIndex]}
+        isSubmitted={isQuestionSubmitted}
+      />
+
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
+        <Button variant="outline" onClick={handlePreviousQuestion} disabled={currentQuestionIndex === 0 || isSubmitting}>
+          <ArrowLeft size={18} className="mr-2" /> Previous
+        </Button>
+        
+        {!isQuestionSubmitted && userAnswers[currentQuestionIndex] !== null && (
+          <Button onClick={handleSubmitAnswer} disabled={isSubmitting || userAnswers[currentQuestionIndex] === null} className="bg-blue-500 hover:bg-blue-600 text-white">
+            Submit Answer
+          </Button>
+        )}
+
+        {isQuestionSubmitted && currentQuestionIndex < examData.questions.length - 1 && (
+          <Button onClick={handleNextQuestion} disabled={isSubmitting} className="bg-primary hover:bg-primary/90">
+            Next Question <ArrowRight size={18} className="ml-2" />
+          </Button>
+        )}
+        
+        {(isQuestionSubmitted || currentQuestionIndex === examData.questions.length -1) && currentQuestionIndex === examData.questions.length - 1 && (
+          <Button onClick={finishExam} disabled={isSubmitting} className="bg-accent hover:bg-accent/90">
+            {isSubmitting ? 'Submitting...' : 'Finish AI Exam'} <CheckSquare size={18} className="ml-2" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
