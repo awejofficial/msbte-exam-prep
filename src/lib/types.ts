@@ -1,3 +1,4 @@
+
 export interface Question {
   id: string;
   subjectId: string;
@@ -25,6 +26,8 @@ export interface ExamResult {
   totalQuestions: number;
   timeTaken?: number; // in seconds
   isAIPractice?: boolean;
+  markedForReview?: boolean[]; // Optional: Pass from practice page if needed in summary
+  isCorrectList?: (boolean | null)[]; // Optional: Pass from practice page
 }
 
 export interface PastPerformance {

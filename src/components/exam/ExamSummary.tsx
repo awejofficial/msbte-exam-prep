@@ -1,9 +1,10 @@
+
 'use client';
 
 import type { ExamResult, Question } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle, XCircle, HelpCircle, Percent } from 'lucide-react';
+import { CheckCircle, XCircle, HelpCircle, Percent, Bookmark } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 export default function ExamSummary({
@@ -12,11 +13,19 @@ export default function ExamSummary({
   score,
   totalQuestions,
   subjectName,
-  isAIPractice
+  isAIPractice,
+  markedForReview, // Optional: if you decide to pass this to summary
+  isCorrectList // Optional: if you pass this (score is derived from it)
 }: ExamResult) {
   const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
 
-  const getQuestionStatusIcon = (question: Question | { text: string, options: string[], correctAnswer: string }, userAnswer: string | null) => {
+  const getQuestionStatusIcon = (index: number) => {
+    const userAnswer = userAnswers[index];
+    const question = questions[index] as Question; // Assuming Question type
+
+    if (isCorrectList && isCorrectList[index] === true) return <CheckCircle className="text-green-500" />;
+    if (isCorrectList && isCorrectList[index] === false) return <XCircle className="text-red-500" />;
+    // Fallback if isCorrectList is not available or item is null (e.g. skipped)
     if (userAnswer === null) return <HelpCircle className="text-yellow-500" />;
     if (userAnswer === question.correctAnswer) return <CheckCircle className="text-green-500" />;
     return <XCircle className="text-red-500" />;
@@ -44,15 +53,27 @@ export default function ExamSummary({
 
         <Accordion type="single" collapsible className="w-full">
           {questions.map((q, index) => {
-            const question = q as Question; // Assuming Question type for simplicity, AI structure might differ
+            // Ensure q is treated as Question, especially for AI questions
+            const question = q as Question; 
             const userAnswer = userAnswers[index];
-            const isCorrect = userAnswer === question.correctAnswer;
+            
+            let questionStatusStyle = 'text-foreground';
+            if (isCorrectList && isCorrectList[index] === true) {
+              questionStatusStyle = 'text-green-600';
+            } else if (isCorrectList && isCorrectList[index] === false) {
+              questionStatusStyle = 'text-red-600';
+            } else if (userAnswer === null) {
+              questionStatusStyle = 'text-yellow-600';
+            }
+
+
             return (
               <AccordionItem value={`item-${index}`} key={index}>
-                <AccordionTrigger className={`flex justify-between items-center hover:no-underline ${isCorrect && userAnswer !== null ? 'text-green-600' : userAnswer !== null ? 'text-red-600' : 'text-foreground'}`}>
+                <AccordionTrigger className={`flex justify-between items-center hover:no-underline ${questionStatusStyle}`}>
                   <div className="flex items-center gap-2 text-left">
-                    {getQuestionStatusIcon(question, userAnswer)}
+                    {getQuestionStatusIcon(index)}
                     <span className="font-medium">Question {index + 1}</span>
+                    {markedForReview && markedForReview[index] && <Bookmark className="h-4 w-4 text-blue-500 fill-blue-500" />}
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="space-y-3 pl-8 pr-2 pt-2">
