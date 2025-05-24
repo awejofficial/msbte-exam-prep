@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { getSubjectById, getQuestionsBySubject } from '@/lib/data';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { getSubjectById, getQuestionsBySubject, getQuestionsForBatch } from '@/lib/data';
 import type { Question, Subject } from '@/lib/types';
 import QuestionDisplay from '@/components/exam/QuestionDisplay';
 import ExamTimer from '@/components/exam/ExamTimer';
@@ -12,19 +12,25 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ArrowLeft, ArrowRight, CheckSquare, Bookmark, MenuSquare } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckSquare, Bookmark, MenuSquare, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // CardHeader, CardTitle added
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-// ScrollArea is now used by QuestionNavigation internally for its content.
-// It's still used here for the desktop sidebar's overall scrollability if needed, but not directly wrapping QuestionNavigation's grid.
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
 const DEFAULT_EXAM_DURATION_MINUTES_PER_QUESTION = 1.5; 
 
+interface ExamBatchInfo {
+  batchNumber: number;
+  questionsInBatch: number;
+  batchSize: number;
+}
+
 export default function PracticeExamPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const subjectId = params.subjectId as string;
 
@@ -36,6 +42,7 @@ export default function PracticeExamPage() {
   const [isSubmitting, setIsSubmitting] = useState(false); 
   const [isQuestionSubmitted, setIsQuestionSubmitted] = useState(false); 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [examBatchInfo, setExamBatchInfo] = useState<ExamBatchInfo | null>(null);
 
   const [markedForReview, setMarkedForReview] = useState<boolean[]>([]);
   const [isCorrectList, setIsCorrectList] = useState<(boolean | null)[]>([]);
@@ -45,7 +52,23 @@ export default function PracticeExamPage() {
       const fetchedSubject = getSubjectById(subjectId);
       if (fetchedSubject) {
         setSubject(fetchedSubject);
-        const fetchedQuestions = getQuestionsBySubject(subjectId);
+        const batchParam = searchParams.get('batch');
+        const sizeParam = searchParams.get('size');
+        let fetchedQuestions: Question[];
+
+        if (batchParam && sizeParam) {
+          const batchNumber = parseInt(batchParam, 10);
+          const batchSize = parseInt(sizeParam, 10);
+          if (!isNaN(batchNumber) && !isNaN(batchSize) && batchNumber > 0 && batchSize > 0) {
+            fetchedQuestions = getQuestionsForBatch(subjectId, batchNumber, batchSize);
+            setExamBatchInfo({ batchNumber, questionsInBatch: fetchedQuestions.length, batchSize });
+          } else {
+            fetchedQuestions = getQuestionsBySubject(subjectId);
+          }
+        } else {
+          fetchedQuestions = getQuestionsBySubject(subjectId);
+        }
+        
         setQuestions(fetchedQuestions);
         if (fetchedQuestions.length > 0) {
           setUserAnswers(new Array(fetchedQuestions.length).fill(null));
@@ -55,7 +78,7 @@ export default function PracticeExamPage() {
       }
       setIsLoading(false);
     }
-  }, [subjectId]);
+  }, [subjectId, searchParams]);
 
   const handleAnswerSelect = (selectedOption: string) => {
     const newAnswers = [...userAnswers];
@@ -141,7 +164,7 @@ export default function PracticeExamPage() {
     const finalCorrectList = [...isCorrectList];
 
     userAnswers.forEach((answer, index) => {
-      if (answer !== null && finalCorrectList[index] === null) {
+      if (answer !== null && finalCorrectList[index] === null) { // Grade any unanswered but not submitted questions
          finalCorrectList[index] = answer === questions[index].correctAnswer;
       }
       if (finalCorrectList[index] === true) {
@@ -160,26 +183,52 @@ export default function PracticeExamPage() {
       totalQuestions: questions.length,
       isAIPractice: false,
       isCorrectList: finalCorrectList,
-      markedForReview: markedForReview, 
+      markedForReview: markedForReview,
+      batchInfo: examBatchInfo ? `Batch ${examBatchInfo.batchNumber}` : undefined,
     };
 
     sessionStorage.setItem('examResult', JSON.stringify(examResult));
-    router.push(`/practice/${subjectId}/summary`);
-  }, [userAnswers, questions, subject, router, subjectId, isCorrectList, markedForReview]);
+    // Construct summary URL, preserving batch info if present
+    const summaryPath = `/practice/${subjectId}/summary`;
+    const summaryParams = new URLSearchParams();
+    if (examBatchInfo) {
+        summaryParams.set('batch', examBatchInfo.batchNumber.toString());
+        summaryParams.set('size', examBatchInfo.batchSize.toString());
+    }
+    router.push(`${summaryPath}${examBatchInfo ? `?${summaryParams.toString()}` : ''}`);
+
+  }, [userAnswers, questions, subject, router, subjectId, isCorrectList, markedForReview, examBatchInfo]);
 
 
-  if (isLoading || !subject || questions.length === 0) {
+  if (isLoading || !subject) { // Removed questions.length === 0 check initially as it might be empty for an invalid batch
     if (isLoading) return <LoadingSpinner text="Loading exam..." />;
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>Could not load exam questions for {subject?.name || 'this subject'}. Please try again or select another subject.</AlertDescription>
+          <AlertDescription>Could not load subject data. Please try again or select another subject.</AlertDescription>
         </Alert>
         <Button onClick={() => router.push('/subjects')} className="mt-4">Back to Subjects</Button>
       </div>
     );
   }
+
+  if (questions.length === 0 && !isLoading) { // Now check for empty questions after loading attempt
+     return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <Alert variant="destructive">
+          <AlertTitle>No Questions</AlertTitle>
+          <AlertDescription>
+            No questions found for {subject.name}
+            {examBatchInfo ? ` in Batch ${examBatchInfo.batchNumber}` : ''}. 
+            This might be an invalid batch or the subject has no questions.
+          </AlertDescription>
+        </Alert>
+        <Button onClick={() => router.push('/subjects')} className="mt-4">Back to Subjects</Button>
+      </div>
+    );
+  }
+
 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
@@ -202,8 +251,8 @@ export default function PracticeExamPage() {
                 <SheetTitle>Questions</SheetTitle>
               </SheetHeader>
               <QuestionNavigation
-                className="flex-1" // QuestionNavigation's root div takes remaining space
-                contentClassName="p-4" // Padding for the grid inside QuestionNavigation's ScrollArea
+                className="flex-1" 
+                contentClassName="p-4" 
                 totalQuestions={questions.length}
                 currentQuestionIndex={currentQuestionIndex}
                 userAnswers={userAnswers}
@@ -213,10 +262,18 @@ export default function PracticeExamPage() {
               />
             </SheetContent>
           </Sheet>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight flex-grow text-center px-2">{subject.name} Practice</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight flex-grow text-center px-2">
+            {subject.name} Practice {examBatchInfo ? `(Batch ${examBatchInfo.batchNumber})` : ''}
+          </h1>
            <div className="w-10 md:hidden"> {/* Placeholder for balance */}</div>
         </div>
         <p className="text-sm text-muted-foreground">Answer all questions to the best of your ability.</p>
+        {examBatchInfo && (
+             <div className="flex items-center justify-center text-xs text-muted-foreground bg-muted/50 py-1 px-3 rounded-full max-w-xs mx-auto">
+                <Info size={14} className="mr-1.5" />
+                Showing {examBatchInfo.questionsInBatch} questions from Batch {examBatchInfo.batchNumber}.
+            </div>
+        )}
       </header>
       
       <div className="md:hidden"> 
@@ -226,7 +283,7 @@ export default function PracticeExamPage() {
       <div className="flex flex-col md:flex-row gap-4 lg:gap-6">
         <div className="hidden md:block md:w-56 lg:w-64 flex-shrink-0">
           <Card className="sticky top-4">
-            <CardContent className="p-0 flex flex-col max-h-[calc(100vh-3rem)]"> {/* max-h ensures card doesn't get too tall */}
+            <CardContent className="p-0 flex flex-col max-h-[calc(100vh-3rem)]">
                <div className="flex-shrink-0">
                  <ExamTimer durationInMinutes={totalExamDuration} onTimeUp={finishExam} />
                  <div className="p-2 border-b">
@@ -234,8 +291,8 @@ export default function PracticeExamPage() {
                  </div>
                </div>
               <QuestionNavigation
-                className="flex-grow" // QuestionNavigation's root div takes remaining space in CardContent
-                contentClassName="p-3" // Padding for the grid inside QuestionNavigation's ScrollArea
+                className="flex-grow" 
+                contentClassName="p-3"
                 totalQuestions={questions.length}
                 currentQuestionIndex={currentQuestionIndex}
                 userAnswers={userAnswers}
@@ -308,3 +365,5 @@ export default function PracticeExamPage() {
     </div>
   );
 }
+
+    

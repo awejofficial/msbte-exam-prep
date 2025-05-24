@@ -1,6 +1,8 @@
 
 import type { Subject, Question } from './types';
 
+export const DEFAULT_BATCH_SIZE = 70;
+
 export const subjects: Subject[] = [
   {
     id: 'applied-mathematics',
@@ -96,7 +98,8 @@ export const questions: Question[] = [
     explanation: 'In C, true conditions evaluate to 1.',
   },
 
-  // Management (22509) Questions - Batch 1 (1-70)
+  // Management (22509) Questions
+  // Batch 1 (Questions 1-70)
   // Topic: Industrial Acts and Labour Laws (Questions 1-50 from this topic in this batch)
   {
     id: 'mgt_q1',
@@ -642,7 +645,7 @@ export const questions: Question[] = [
     topic: 'Industrial Acts and Labour Laws',
     text: 'According to the definition of "Week" under the Minimum wage Act, it is a period of 7 days beginning at midnight on______',
     options: ['Sunday', 'Monday', 'Friday', 'Saturday'],
-    correctAnswer: 'Saturday',
+    correctAnswer: 'Saturday', // Corrected based on typical definitions, was "Monday" (B) previously.
   },
   {
     id: 'mgt_q69',
@@ -661,7 +664,8 @@ export const questions: Question[] = [
     correctAnswer: 'All of the above',
   },
 
-  // Management (22509) Questions - Batch 2 (71-140)
+  // Management (22509) Questions
+  // Batch 2 (Questions 71-140)
   // Mixed Topics from here on
   {
     id: 'mgt_q71',
@@ -903,6 +907,9 @@ export const questions: Question[] = [
     options: ['Planning', 'Controlling', 'Directing', 'Management'],
     correctAnswer: 'Controlling',
   },
+
+  // Management (22509) Questions
+  // Batch 3 (Questions 101-157)
   {
     id: 'mgt_q101',
     subjectId: 'management',
@@ -914,7 +921,7 @@ export const questions: Question[] = [
   {
     id: 'mgt_q102',
     subjectId: 'management',
-    topic: 'Directing and Controlling',
+    topic: 'Directing and Controlling', // Or Planning and Organizing -> Coordinating
     text: 'Ensuring that everything is carried out according to plan is the part of the process-',
     options: ['Planning', 'Staffing', 'Organizing', 'Coordinating'],
     correctAnswer: 'Coordinating',
@@ -940,7 +947,7 @@ export const questions: Question[] = [
     subjectId: 'management',
     topic: 'Planning and Organizing',
     text: 'Main objectives of budget is to _____',
-    options: ['Develope existing and future projects', 'Test and implement program', 'planning and controlling of activities', 'All of these'],
+    options: ['Develope existing and future projects', 'Test and implement program', 'planning and controlling of activities', 'All of these'], // Corrected from all1
     correctAnswer: 'planning and controlling of activities',
   },
   {
@@ -978,7 +985,7 @@ export const questions: Question[] = [
   {
     id: 'mgt_q110',
     subjectId: 'management',
-    topic: 'Planning and Organizing',
+    topic: 'Directing and Controlling', // Could be Introduction to Management Concepts (Roles of Supervisor)
     text: 'Supervisor has to play roles of ______.',
     options: ['Engineer', 'Resource Manager', 'Team leader', 'All of the above'],
     correctAnswer: 'All of the above',
@@ -1018,7 +1025,7 @@ export const questions: Question[] = [
   {
     id: 'mgt_q115',
     subjectId: 'management',
-    topic: 'Planning and Organizing',
+    topic: 'Planning and Organizing', // Also touches on Safety Management
     text: 'Along with manpower planning supervisor should ______.',
     options: ['Promote safety and good working conditions.', 'Maintain or improve product quality', 'Reduce delays, and damage', 'All of the above'],
     correctAnswer: 'All of the above',
@@ -1210,13 +1217,11 @@ export const questions: Question[] = [
   {
     id: 'mgt_q139',
     subjectId: 'management',
-    topic: 'Planning and Organizing',
+    topic: 'Planning and Organizing', // Delegation is part of Organizing
     text: 'The general manager of a firm asks the sales manager to recruit a salesman on his behalf.This is an example of:',
     options: ['decentralization of authority', 'delegation of responsibility', 'delegation of authority', 'division of authority'],
     correctAnswer: 'delegation of authority',
   },
-
-  // Management (22509) Questions - Batch 3 (141-157)
   {
     id: 'mgt_q140',
     subjectId: 'management',
@@ -1225,6 +1230,8 @@ export const questions: Question[] = [
     options: ['1 and 2', '2 and 3', '2, 3 and 4', '1,2, 3 and 4'],
     correctAnswer: '2 and 3',
   },
+  // Management (22509) Questions
+  // Batch 3 Continued (Questions 141-157)
   {
     id: 'mgt_q141',
     subjectId: 'management',
@@ -1270,7 +1277,7 @@ export const questions: Question[] = [
     subjectId: 'management',
     topic: 'Directing and Controlling',
     text: 'Employees who are more concerned about their work may loss their interest and enthusiasm towards work because of 1 Ambiguous order issued by supervisor 2 Feasibility of order is not possible 3 There is no clarity and completeness in order 4 Lack of motivation from supervisor',
-    options: ['1&2', '2,3&4', '1,2,3 & 4', '1,3&4'], // Corrected D from 1,364 to 1,3&4 for consistency
+    options: ['1&2', '2,3&4', '1,2,3 & 4', '1,3&4'], // Corrected option D from 1,364
     correctAnswer: '1,2,3 & 4',
   },
   {
@@ -1370,3 +1377,13 @@ export const getQuestionsBySubject = (subjectId: string): Question[] => {
 export const getSubjectById = (subjectId: string): Subject | undefined => {
   return subjects.find(s => s.id === subjectId);
 };
+
+// Helper function to get questions for a specific batch
+export const getQuestionsForBatch = (subjectId: string, batchNumber: number, batchSize: number): Question[] => {
+  const allSubjectQuestions = getQuestionsBySubject(subjectId);
+  const startIndex = (batchNumber - 1) * batchSize;
+  const endIndex = batchNumber * batchSize;
+  return allSubjectQuestions.slice(startIndex, endIndex);
+};
+
+    

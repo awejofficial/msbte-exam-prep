@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import type { ExamResult, Question } from '@/lib/types';
 import ExamSummary from '@/components/exam/ExamSummary';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -13,6 +14,7 @@ import { ArrowLeft, RefreshCw } from 'lucide-react';
 export default function PracticeSummaryPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const subjectId = params.subjectId as string;
   const [examResult, setExamResult] = useState<ExamResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +41,13 @@ export default function PracticeSummaryPage() {
   }, [subjectId]);
 
   const handleRetakeExam = () => {
-    router.push(`/practice/${subjectId}`);
+    const batch = searchParams.get('batch');
+    const size = searchParams.get('size');
+    let path = `/practice/${subjectId}`;
+    if (batch && size) {
+      path += `?batch=${batch}&size=${size}`;
+    }
+    router.push(path);
   };
 
   if (isLoading) {
@@ -68,7 +76,7 @@ export default function PracticeSummaryPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       <header className="text-center space-y-2">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-          Exam Summary: {examResult.subjectName || 'Practice Exam'}
+          Exam Summary: {examResult.subjectName || 'Practice Exam'} {examResult.batchInfo || ''}
         </h1>
         <p className="text-muted-foreground text-lg">
           Review your performance below.
@@ -79,7 +87,7 @@ export default function PracticeSummaryPage() {
 
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6">
         <Button onClick={handleRetakeExam} variant="outline" className="border-primary text-primary hover:bg-primary/10">
-          <RefreshCw size={18} className="mr-2" /> Retake Exam
+          <RefreshCw size={18} className="mr-2" /> Retake {examResult.batchInfo ? 'Batch' : 'Exam'}
         </Button>
         <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
           <Link href="/subjects" className="flex items-center gap-2">
@@ -90,3 +98,5 @@ export default function PracticeSummaryPage() {
     </div>
   );
 }
+
+    

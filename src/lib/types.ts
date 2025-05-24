@@ -28,8 +28,11 @@ export interface ExamResult {
   isAIPractice?: boolean;
   markedForReview?: boolean[]; // Optional: Pass from practice page if needed in summary
   isCorrectList?: (boolean | null)[]; // Optional: Pass from practice page
+  batchInfo?: string; // e.g., "Batch 1"
 }
 
 export interface PastPerformance {
   [topic: string]: number; // Score between 0 and 1
 }
+
+    
