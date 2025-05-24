@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -33,9 +34,9 @@ const ScrollBar = React.forwardRef<
     className={cn(
       "flex touch-none select-none transition-colors",
       orientation === "vertical" &&
-        "h-full w-2.5 border-l border-l-transparent p-[1px]",
+        "h-full w-2.5 border-l border-l-transparent p-[1px] bg-muted/40 rounded-lg", // Added bg-muted/40 and rounded-lg to the track
       orientation === "horizontal" &&
-        "h-2.5 flex-col border-t border-t-transparent p-[1px]",
+        "h-2.5 flex-col border-t border-t-transparent p-[1px] bg-muted/40 rounded-lg", // Added bg-muted/40 and rounded-lg to the track
       className
     )}
     {...props}
