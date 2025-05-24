@@ -494,7 +494,7 @@ export const questions: Question[] = [
     topic: 'Industrial Acts and Labour Laws',
     text: 'A workmen have loss of both eyes, then He/She will get compensation ------ Percentage of loss of earning capacity',
     options: ['30', '50', '40', '100'],
-    correctAnswer: '50',
+    correctAnswer: '50', // User entered B, which is 50, I previously wrote 100
   },
   // Management (22509) - Topic: Compensation and Wage Policies
   {
@@ -577,6 +577,87 @@ export const questions: Question[] = [
     options: ['15 days', '21 days', '1 day', '1 month'],
     correctAnswer: '1 month',
   },
+  // New batch starting mgt_q61
+  {
+    id: 'mgt_q61',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '-------- deductions is not authorized payment of wages act',
+    options: ['Deduction for Fines', 'Deduction for payment of Income tax', 'Deduction for Payment of insurance', 'Deduction for payment of uniform and property'],
+    correctAnswer: 'Deduction for payment of uniform and property',
+  },
+  {
+    id: 'mgt_q62',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '-------- of the wages payable is the maximum limit of fine to be imposed on an employee',
+    options: ['5%', '1%', '3%', '10%'],
+    correctAnswer: '3%',
+  },
+  {
+    id: 'mgt_q63',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'Section....... deals with the provisions relating to arrangements for drinking water in factories',
+    options: ['18', '12', '9', '7'],
+    correctAnswer: '18',
+  },
+  {
+    id: 'mgt_q64',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '-------- means a person who has completed his fourteenth year of age but has not completed his eighteenth year',
+    options: ['Adult', 'Adolescent', 'Workmen', 'None of the above'],
+    correctAnswer: 'Adolescent',
+  },
+  {
+    id: 'mgt_q65',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '------- means a person who has completed his eighteenth year of age',
+    options: ['Minor', 'Adolescent', 'Adult', 'None of the above'],
+    correctAnswer: 'Adult',
+  },
+  {
+    id: 'mgt_q66',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '-------means a person who has not completed his fourteenth year of age',
+    options: ['Adult', 'Child', 'Workmen', 'None of the above'],
+    correctAnswer: 'Child',
+  },
+  {
+    id: 'mgt_q67',
+    subjectId: 'management',
+    topic: 'Compensation and Wage Policies',
+    text: '------- means all remuneration expressed in terms of money',
+    options: ['Salary', 'Wages', 'Mobadla', 'All of the above'],
+    correctAnswer: 'Wages',
+  },
+  {
+    id: 'mgt_q68',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'According to the definition of "Week" under the Minimum wage Act, it is a period of 7 days beginning at midnight on______',
+    options: ['Sunday', 'Monday', 'Friday', 'Saturday'],
+    correctAnswer: 'Monday',
+  },
+  {
+    id: 'mgt_q69',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'The power of inspectors is discussed under Section-------- of the Factories Act, 1948.',
+    options: ['9', '10', '11', '12'],
+    correctAnswer: '9',
+  },
+  {
+    id: 'mgt_q70',
+    subjectId: 'management',
+    topic: 'Safety Management',
+    text: 'The responsibility for maintenance of employee health and safety is concerned with --------',
+    options: ['Employee', 'Employer', 'Government', 'All of the above'],
+    correctAnswer: 'All of the above',
+  },
 ];
 
 export const getQuestionsBySubject = (subjectId: string): Question[] => {
@@ -586,3 +667,4 @@ export const getQuestionsBySubject = (subjectId: string): Question[] => {
 export const getSubjectById = (subjectId: string): Subject | undefined => {
   return subjects.find(s => s.id === subjectId);
 };
+
