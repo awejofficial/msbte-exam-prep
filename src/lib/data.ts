@@ -1,3 +1,4 @@
+
 import type { Subject, Question } from './types';
 
 export const subjects: Subject[] = [
@@ -256,6 +257,87 @@ export const questions: Question[] = [
     options: ['The Heavy Industries Department of Central Government', 'Human Resources Department', 'The Labour Department of the State Government', 'All of the Above'],
     correctAnswer: 'The Labour Department of the State Government',
   },
+  // Batch 3 for Management
+  {
+    id: 'mgt_q21',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '--- year did the Industrial Dispute act come into operation.',
+    options: ['1960', '1947', '2019', '1965'],
+    correctAnswer: '1947',
+  },
+  {
+    id: 'mgt_q22',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'The industrial peace is secured through voluntary _______ and compulsory ________',
+    options: ['Compromise and Arbitration', 'Adjudication and Arbitration', 'Work Committee and Industrial Tribunal', 'Negotiation and Adjudication'],
+    correctAnswer: 'Negotiation and Adjudication',
+  },
+  {
+    id: 'mgt_q23',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '------- legislation there is a provision called ‘protected workmen’.',
+    options: ['Trade Unions Act, 1926', 'Industrial Employment (Standing Orders) Act, 1946', 'Industrial Disputes Act, 1947', 'Factories Act, 1948'],
+    correctAnswer: 'Industrial Disputes Act, 1947',
+  },
+  {
+    id: 'mgt_q24',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'Grievance Handing Machinery is given in ---------',
+    options: ['Industrial Dispute Act', 'Indian factory act', 'Minimum Wages act', 'All of the Above'],
+    correctAnswer: 'Industrial Dispute Act',
+  },
+  {
+    id: 'mgt_q25',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'To provide compensation to workmen in cases of Lay-off, retrenchment and closure is a provision of ............... Act.',
+    options: ['Factory Act', 'Industrial Dispute', 'Workmen Compensation', 'None of the above'],
+    correctAnswer: 'Industrial Dispute',
+  },
+  {
+    id: 'mgt_q26',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '-------- is a machinery for the settlement of Industrial Disputes in India',
+    options: ['National Commission on Labour', 'Wage Board', 'Industrial Tribunal', 'Standing Labour Committee'],
+    correctAnswer: 'Industrial Tribunal',
+  },
+  {
+    id: 'mgt_q27',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '------- machinery has been mentioned in the Industrial Dispute act accountable for the speedy and amicable settlement of industrial disputes',
+    options: ['Adjudication', 'Conciliation', 'Arbitration', 'Appropriate government'],
+    correctAnswer: 'Conciliation',
+  },
+  {
+    id: 'mgt_q28',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: '________ means an interim or a final determination of any industrial dispute or of any question relating there to by any labour court.',
+    options: ['Banking Company', 'Conciliation Proceeding', 'Closure', 'Award'],
+    correctAnswer: 'Award',
+  },
+  {
+    id: 'mgt_q29',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'Industrial Dispute means, Dispute between -----',
+    options: ['Employer and workmen', 'Workmen and workmen', 'Employer and Employer', 'All of the Above'],
+    correctAnswer: 'All of the Above',
+  },
+  {
+    id: 'mgt_q30',
+    subjectId: 'management',
+    topic: 'Industrial Acts and Labour Laws',
+    text: 'The ------- authorities are set up for settling the industrial Dispute.',
+    options: ['Labor court', 'Industrial Tribunal', 'Conciliation Board', 'All of the Above'],
+    correctAnswer: 'All of the Above',
+  },
 ];
 
 export const getQuestionsBySubject = (subjectId: string): Question[] => {
@@ -266,3 +348,5 @@ export const getSubjectById = (subjectId: string): Subject | undefined => {
   return subjects.find(s => s.id === subjectId);
 };
 
+
+    
